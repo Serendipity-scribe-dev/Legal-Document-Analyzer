@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block navbar_title %}Similar Judgement Finder{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Similar Judgement Finder</h2>
+    
+    <form method="post" class="mb-5">
+        <div class="input-group">
+            <input type="text" name="query" class="form-control" 
+                   placeholder="Enter legal case details or keywords..." 
+                   value="{{ query if query else '' }}" required>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+
+    {% if results %}
+    <div class="d-flex justify-content-end mb-3">
+        <button onclick="exportToPDF()" class="btn btn-danger">
+            <i class="bi bi-file-earmark-pdf"></i> Export to PDF
+        </button>
+    </div>
+    
+    <div class="results-section" id="results">
+        <h4 class="mb-3">Top Matching Cases:</h4>
+        
+        {% for result in results %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{{ result.file }}</h5>
+                <p class="card-text">{{ result.snippet }}...</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">Similarity Score: {{ result.score }}</small>
+                    <a href="#" class="btn btn-sm btn-outline-primary">View Full Text</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Add these right before closing the content block -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// PDF Export Functionality
+function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    const content = document.getElementById("results");
+    let y = 20; // Start position
+    
+    // Add title
+    pdf.setFontSize(18);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Similar Judgement Finder Results", 105, 15, { align: 'center' });
+    
+    // Add current date
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "normal");
+    const today = new Date().toLocaleDateString();
+    pdf.text(`Generated on: ${today}`, 105, 25, { align: 'center' });
+    
+    y = 35; // Reset position after header
+    
+    const cards = content.querySelectorAll(".card");
+    
+    if (!cards.length) {
+        pdf.text("No results to export", 10, y);
+        pdf.save("judgement_results.pdf");
+        return;
+    }
+    
+    cards.forEach((card, index) => {
+        const title = card.querySelector(".card-title")?.innerText || "Untitled Case";
+        const snippet = card.querySelector(".card-text")?.innerText || "";
+        const score = card.querySelector(".text-muted")?.innerText || "Score: N/A";
+        
+        // Add case title
+        pdf.setFontSize(14);
+        pdf.setFont("helvetica", "bold");
+        const titleLines = pdf.splitTextToSize(title, 180);
+        pdf.text(titleLines, 15, y);
+        y += titleLines.length * 7;
+        
+        // Add score
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "italic");
+        pdf.text(score, 15, y);
+        y += 5;
+        
+        // Add snippet
+        pdf.setFontSize(11);
+        pdf.setFont("helvetica", "normal");
+        const snippetLines = pdf.splitTextToSize(snippet, 180);
+        
+        snippetLines.forEach(line => {
+            if (y > 280) {
+                pdf.addPage();
+                y = 20;
+            }
+            pdf.text(line, 15, y);
+            y += 7;
+        });
+        
+        y += 10; // Add space between cases
+        
+        // Add page break if needed
+        if (y > 270 && index < cards.length - 1) {
+            pdf.addPage();
+            y = 20;
+        }
+    });
+    
+    pdf.save("judgement_finder_results.pdf");
+}
+</script>
+
+<style>
+.btn-danger {
+    background-color: #dc3545;
+    transition: all 0.3s;
+}
+.btn-danger:hover {
+    background-color: #bb2d3b;
+    transform: translateY(-2px);
+}
+</style>
+{% endblock %}

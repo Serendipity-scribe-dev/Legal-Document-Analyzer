@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block navbar_title %}IPC Section Retrieval{% endblock %}
+
+{% block title %}IPC Section Retrieval{% endblock %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+{% block content %}
+<body class="container py-5">
+    <h2 class="text-center mb-4"> IPC Section Retrieval</h2>
+
+    <div class="mb-3 position-relative">
+        <input type="text" id="query" class="form-control" placeholder="Enter case description" oninput="showSuggestions()">
+        <ul class="list-group position-absolute w-100" id="suggestions" style="z-index: 999;"></ul>
+    </div>
+
+    <div class="text-center mb-4">
+        <button class="btn btn-primary" onclick="search()">Search</button>
+        <button class="btn btn-outline-secondary" onclick="exportToPDF()">Export Results</button>
+    </div>
+
+    <div id="results" class="row"></div>
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .result-card {
+            margin-bottom: 20px;
+        }
+    </style>
+
+    <script>
+        const suggestionsList = [
+            "Theft of property",
+            "Assault and battery",
+            "Forgery of documents",
+            "Murder and homicide",
+            "Cyber crime",
+            "Domestic violence",
+            "Bribery and corruption",
+            "Kidnapping or abduction",
+            "Rape or sexual assault",
+            "Trespassing",
+        ];
+
+        function showSuggestions() {
+            const input = document.getElementById("query").value.toLowerCase();
+            const suggestions = suggestionsList.filter(item => item.toLowerCase().includes(input));
+            const suggestionBox = document.getElementById("suggestions");
+            suggestionBox.innerHTML = '';
+
+            if (input && suggestions.length) {
+                suggestions.forEach(s => {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item list-group-item-action";
+                    li.innerText = s;
+                    li.onclick = () => {
+                        document.getElementById("query").value = s;
+                        suggestionBox.innerHTML = '';
+                    };
+                    suggestionBox.appendChild(li);
+                });
+            }
+        }
+
+        async function search() {
+            let query = document.getElementById("query").value;
+            const res = await fetch('/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query })
+            });
+            const data = await res.json();
+            const output = data.results.map(r =>
+                `<div class="col-md-6 result-card">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">${r["IPC Section"]}</h5>
+                            <p><strong>Description:</strong> ${r.Description}</p>
+                            <p><strong>Offense:</strong> ${r.Offense}</p>
+                            <p><strong>Punishment:</strong> ${r.Punishment}</p>
+                            <p><strong>Similarity Score:</strong> ${r["Similarity Score"]}</p>
+                        </div>
+                    </div>
+                </div>`
+            ).join('');
+            document.getElementById("results").innerHTML = output;
+        }
+    //export
+    function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    const content = document.getElementById("results");
+    let y = 10;
+
+    const cards = content.querySelectorAll(".card");
+    cards.forEach((card, index) => {
+        const title = card.querySelector(".card-title")?.innerText || "";
+        const lines = card.innerText.split("\n").filter(line => line.trim() !== "");
+
+        pdf.setFontSize(14);
+        pdf.setFont("helvetica", "bold");
+        pdf.text(title, 10, y);
+        y += 8;
+
+        pdf.setFontSize(11);
+        pdf.setFont("helvetica", "normal");
+
+        lines.forEach(line => {
+            const split = pdf.splitTextToSize(line, 180);  // wrap at 180px
+            if (y + split.length * 7 > 280) {
+                pdf.addPage();
+                y = 10;
+            }
+            pdf.text(split, 10, y);
+            y += split.length * 7;
+        });
+
+        y += 10; // space between cards
+
+        // Add a page break if needed after each card
+        if (y > 280 && index < cards.length - 1) {
+            pdf.addPage();
+            y = 10;
+        }
+    });
+
+    if (!cards.length) {
+        pdf.text("No results to export", 10, 10);
+    }
+
+    pdf.save("ipc_results.pdf");
+}
+
+    </script>
+</body>
+</html>
+{% endblock %}

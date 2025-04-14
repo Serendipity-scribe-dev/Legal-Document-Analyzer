@@ -1,0 +1,67 @@
+__pycache__/
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+*.pyd
+*.pyo
+*.log
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VS Code settings
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+
+# Compiled files
+*.class
+
+# PyInstaller
+*.spec
+dist/
+build/
+
+# Coverage and test reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+
+# Models and large data
+*.bin
+*.ckpt
+*.pt
+*.onnx
+*.h5
+*.tflite
+*.pb
+models/
+checkpoints/
+saved_models/
+output/
+
+# Node/Frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+
