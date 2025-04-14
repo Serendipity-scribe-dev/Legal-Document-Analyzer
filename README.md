@@ -108,6 +108,12 @@ Then visit http://127.0.0.1:8000/
 
 ---
 
+## Demo
+
+[![Watch the demo](https://cdn.loom.com/sessions/thumbnails/e3e113300a634ccd8ebabdefe9b2084b-with-play.gif)](https://www.loom.com/share/e3e113300a634ccd8ebabdefe9b2084b)
+
+---
+
 ## Conclusion
 
 The Legal Document Analyzer empowers legal professionals and students by automating key tasks using cutting-edge NLP. It bridges the gap between raw legal data and actionable insights using different ML models and FastAPI.
