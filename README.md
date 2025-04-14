@@ -110,7 +110,9 @@ Then visit http://127.0.0.1:8000/
 
 ## Demo Video
 
-[![Watch the demo](https://cdn.loom.com/sessions/thumbnails/e3e113300a634ccd8ebabdefe9b2084b-with-play.gif)](https://www.loom.com/share/e3e113300a634ccd8ebabdefe9b2084b)
+```
+[Watch the demo](https://www.loom.com/share/e3e113300a634ccd8ebabdefe9b2084b)
+```
 
 ---
 
